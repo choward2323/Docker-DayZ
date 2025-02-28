@@ -1,0 +1,15 @@
+services:
+  dayz-server:
+    build: .
+    container_name: dayz-server
+    ports:
+      - "2302:2302/udp"   # Game port
+      - "2303:2303/udp"   # Steam query port
+      - "27016:27016/udp" # Steam master server updater port
+    volumes:
+      - /volume1/docker/vtb_tools_prod/config:/dayz-server/config
+      - /volume1/docker/vtb_tools_prod/profiles:/dayz-server/profiles
+      - /volume1/docker/vtb_tools_prod/mpmissions:/dayz-server/mpmissions
+    restart: unless-stopped
+    environment:
+      - TZ=UTC 
