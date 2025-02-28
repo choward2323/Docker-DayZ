@@ -1,26 +1,37 @@
-FROM cm2network/steamcmd:root
+FROM ubuntu:22.04
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y \
     lib32gcc-s1 \
+    curl \
+    software-properties-common \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create directory for DayZ server and set permissions
-RUN mkdir -p /dayz-server && \
-    chown -R steam:steam /dayz-server
+# Create steam user
+RUN useradd -m steam
+
+# Create directories
+RUN mkdir -p /home/steam/steamcmd /dayz-server && \
+    chown -R steam:steam /home/steam/steamcmd /dayz-server
 
 # Switch to steam user
 USER steam
 WORKDIR /home/steam/steamcmd
 
-# Initialize SteamCMD and install DayZ Dedicated Server (App ID: 223350)
-RUN mkdir -p /home/steam/Steam && \
+# Download and extract SteamCMD
+RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+
+# Create Steam directory and initialize SteamCMD
+RUN mkdir -p /home/steam/.steam/sdk32 && \
     ./steamcmd.sh +login anonymous +quit && \
-    ./steamcmd.sh +force_install_dir /home/steam/steamcmd/dayz \
+    ln -s /home/steam/steamcmd/linux32/steamclient.so /home/steam/.steam/sdk32/steamclient.so
+
+# Install DayZ Dedicated Server
+RUN ./steamcmd.sh +force_install_dir /dayz-server \
     +login anonymous \
     +app_update 223350 validate \
-    +quit && \
-    cp -r /home/steam/steamcmd/dayz/* /dayz-server/
+    +quit
 
 # Switch back to root for copying files
 USER root
@@ -33,6 +44,7 @@ RUN chmod +x /dayz-server/start-server.sh && \
 
 # Switch back to steam user for running the server
 USER steam
+WORKDIR /dayz-server
 
 # Default command
 CMD ["./start-server.sh"] 
