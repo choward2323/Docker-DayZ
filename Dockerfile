@@ -15,8 +15,13 @@ USER steam
 # Set working directory
 WORKDIR /dayz-server
 
-# Install DayZ Dedicated Server (App ID: 223350)
-RUN /home/steam/steamcmd/steamcmd.sh +force_install_dir /dayz-server +login anonymous +app_update 223350 validate +quit
+# Initialize SteamCMD and install DayZ Dedicated Server (App ID: 223350)
+RUN mkdir -p /home/steam/Steam && \
+    /home/steam/steamcmd/steamcmd.sh +login anonymous +quit && \
+    /home/steam/steamcmd/steamcmd.sh +force_install_dir /dayz-server \
+    +login anonymous \
+    +app_update 223350 validate \
+    +quit
 
 # Switch back to root for copying files
 USER root
