@@ -12,7 +12,7 @@ RUN mkdir -p /dayz-server
 WORKDIR /dayz-server
 
 # Install DayZ Dedicated Server (App ID: 223350)
-RUN ./steamcmd.sh +force_install_dir /dayz-server +login anonymous +app_update 223350 validate +quit
+RUN /home/steam/steamcmd/steamcmd.sh +force_install_dir /dayz-server +login anonymous +app_update 223350 validate +quit
 
 # Add server startup script
 COPY start-server.sh /dayz-server/
