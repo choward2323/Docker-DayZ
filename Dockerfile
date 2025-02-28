@@ -3,6 +3,9 @@ FROM ubuntu:22.04
 # Install required dependencies
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
+    apt-get install -y wget gpg && \
+    echo steam steam/question select "I AGREE" | debconf-set-selections && \
+    echo steam steam/license note '' | debconf-set-selections && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     lib32gcc-s1 \
     curl \
@@ -12,8 +15,11 @@ RUN dpkg --add-architecture i386 && \
     libsdl2-2.0-0:i386 \
     libc6:i386 \
     libstdc++6:i386 \
-    steamcmd \
-    && rm -rf /var/lib/apt/lists/*
+    && \
+    add-apt-repository multiverse && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y steamcmd && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create steam user
 RUN useradd -m steam
